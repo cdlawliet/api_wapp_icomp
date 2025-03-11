@@ -227,43 +227,47 @@
             <div class="u-layout-row">
               <div style="display: flex; justify-content: space-between; font-family: 'Source Sans Pro', sans-serif;">
 
-                <!-- Container 1: POST Mensagem -->
-                <div class="u-container-style u-layout-cell u-opacity u-opacity-40 u-palette-4-light-2 u-radius-20 u-shape-round u-size-30 u-layout-cell-1" style="background-color: #f9e2d2; box-shadow: 0px 4px 8px rgba(0,0,0,0.1); padding: 20px;">
-                    <div class="u-container-layout u-valign-middle u-container-layout-1">
-                        <h5 style="color: #d67d3e; font-weight: bold; margin-bottom: 10px;">POST Mensagem</h5>
-                        <h2 style="margin-bottom: 15px;">Envie mensagens de texto</h2>
-                        <p><strong>URL POST:</strong> <a href="http://localhost:8888/message" style="color: #d67d3e;">http://localhost:8888/message</a></p>
-                        <div style="margin-top: 10px;">
-                            <h4 style="margin-bottom: 5px;">Headers</h4>
-                            <p style="margin: 0;">content-type: application/x-www-form-urlencoded</p>
-                        </div>
-                        <div style="margin-top: 10px;">
-                            <h4 style="margin-bottom: 5px;">Body</h4>
-                            <p style="margin: 0;">number: 55**********</p>
-                            <p style="margin: 0;">message: Mensagem a ser enviada</p>
-                        </div>
-                    </div>
-                </div>
-            
-                <!-- Container 2: POST Arquivo -->
-                <div class="u-container-style u-layout-cell u-opacity u-opacity-75 u-palette-3-light-2 u-radius-20 u-shape-round u-size-30 u-layout-cell-2" style="background-color: #e6f7f0; box-shadow: 0px 4px 8px rgba(0,0,0,0.1); padding: 20px;">
-                    <div class="u-container-layout u-valign-middle u-container-layout-2">
-                        <h5 style="color: #339966; font-weight: bold; margin-bottom: 10px;">POST Arquivo</h5>
-                        <h2 style="margin-bottom: 15px;">Envie mídias e arquivos</h2>
-                        <p><strong>URL POST:</strong> <a href="http://localhost:8888/media" style="color: #339966;">http://localhost:8888/media</a></p>
-                        <div style="margin-top: 10px;">
-                            <h4 style="margin-bottom: 5px;">Headers</h4>
-                            <p style="margin: 0;">content-type: application/x-www-form-urlencoded</p>
-                        </div>
-                        <div style="margin-top: 10px;">
-                            <h4 style="margin-bottom: 5px;">Body</h4>
-                            <p style="margin: 0;">number: 55**********</p>
-                            <p style="margin: 0;">file: url do arquivo</p>
-                            <p style="margin: 0;">caption: título do arquivo</p>
-                        </div>
-                    </div>
-                </div>
-            
+<!-- Container Wrapper -->
+<div style="display: flex; gap: 60px; justify-content: center;">
+
+  <!-- Container 1: POST Mensagem -->
+  <div class="u-container-style u-layout-cell u-opacity u-opacity-40 u-palette-4-light-2 u-radius-20 u-shape-round u-size-30 u-layout-cell-1" style="background-color: #f9e2d2; box-shadow: 0px 4px 8px rgba(0,0,0,0.1); padding: 20px; flex: 1; border: none;">
+    <div class="u-container-layout u-valign-middle u-container-layout-1">
+        <h5 style="color: #d67d3e; font-weight: bold; margin-bottom: 10px;">POST Mensagem</h5>
+        <h2 style="margin-bottom: 15px;">Envie mensagens de texto</h2>
+        <p><strong>URL POST:</strong> <a href="http://localhost:8888/message" style="color: #d67d3e;">http://localhost:8888/message</a></p>
+        <div style="margin-top: 10px;">
+            <h4 style="margin-bottom: 5px;">Headers</h4>
+            <p style="margin: 0;">content-type: application/x-www-form-urlencoded</p>
+        </div>
+        <div style="margin-top: 10px;">
+            <h4 style="margin-bottom: 5px;">Body</h4>
+            <p style="margin: 0;">number: 55**********</p>
+            <p style="margin: 0;">message: Mensagem a ser enviada</p>
+        </div>
+    </div>
+  </div>
+
+  <!-- Container 2: POST Arquivo -->
+  <div class="u-container-style u-layout-cell u-opacity u-opacity-75 u-palette-3-light-2 u-radius-20 u-shape-round u-size-30 u-layout-cell-2" style="background-color: #e6f7f0; box-shadow: 0px 4px 8px rgba(0,0,0,0.1); padding: 20px; flex: 1; border: none;">
+    <div class="u-container-layout u-valign-middle u-container-layout-2">
+        <h5 style="color: #339966; font-weight: bold; margin-bottom: 10px;">POST Arquivo</h5>
+        <h2 style="margin-bottom: 15px;">Envie mídias e arquivos</h2>
+        <p><strong>URL POST:</strong> <a href="http://localhost:8888/media" style="color: #339966;">http://localhost:8888/media</a></p>
+        <div style="margin-top: 10px;">
+            <h4 style="margin-bottom: 5px;">Headers</h4>
+            <p style="margin: 0;">content-type: application/x-www-form-urlencoded</p>
+        </div>
+        <div style="margin-top: 10px;">
+            <h4 style="margin-bottom: 5px;">Body</h4>
+            <p style="margin: 0;">number: 55**********</p>
+            <p style="margin: 0;">file: url do arquivo</p>
+            <p style="margin: 0;">caption: título do arquivo</p>
+        </div>
+    </div>
+  </div>
+
+</div>          
             </div>
           </div>
         </div>
