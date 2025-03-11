@@ -225,24 +225,50 @@
         <div class="u-clearfix u-expanded-width u-gutter-20 u-layout-wrap u-layout-wrap-1">
           <div class="u-layout">
             <div class="u-layout-row">
-              <div class="u-container-style u-layout-cell u-opacity u-opacity-40 u-palette-4-light-2 u-radius-20 u-shape-round u-size-30 u-layout-cell-1">
-                <div class="u-container-layout u-valign-middle u-container-layout-1">
-                  <h5 class="u-custom-font u-font-source-sans-pro u-text u-text-default u-text-palette-4-base u-text-1">POST Mensagem</h5>
-                  <h2 class="u-custom-font u-font-source-sans-pro u-text u-text-2">Envie mensagens de texto</h2>
-                  <p><h4>Headers</h4>content-type: application/x-www-form-urlencoded<br><h4>Body</h4>number: 55**********<br>message: Mensagem a ser enviada</p>
-                  <p></p>
-                  
-</g>
-</g></svg><img></span>
-                  </a>
+              <div style="display: flex; justify-content: space-between; font-family: 'Source Sans Pro', sans-serif;">
+
+                <!-- Container 1: POST Mensagem -->
+                <div class="u-container-style u-layout-cell u-opacity u-opacity-40 u-palette-4-light-2 u-radius-20 u-shape-round u-size-30 u-layout-cell-1" style="background-color: #f9e2d2; box-shadow: 0px 4px 8px rgba(0,0,0,0.1); padding: 20px;">
+                    <div class="u-container-layout u-valign-middle u-container-layout-1">
+                        <h5 style="color: #d67d3e; font-weight: bold; margin-bottom: 10px;">POST Mensagem</h5>
+                        <h2 style="margin-bottom: 15px;">Envie mensagens de texto</h2>
+                        <p><strong>URL POST:</strong> <a href="http://localhost:8888/message" style="color: #d67d3e;">http://localhost:8888/message</a></p>
+                        <div style="margin-top: 10px;">
+                            <h4 style="margin-bottom: 5px;">Headers</h4>
+                            <p style="margin: 0;">content-type: application/x-www-form-urlencoded</p>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <h4 style="margin-bottom: 5px;">Body</h4>
+                            <p style="margin: 0;">number: 55**********</p>
+                            <p style="margin: 0;">message: Mensagem a ser enviada</p>
+                        </div>
+                    </div>
                 </div>
-              </div>
-              <div class="u-container-style u-layout-cell u-opacity u-opacity-75 u-palette-3-light-2 u-radius-20 u-size-30 u-layout-cell-2">
-                <div class="u-container-layout u-valign-middle u-container-layout-2">
-                  <h5 class="u-custom-font u-font-source-sans-pro u-text u-text-default u-text-palette-1-base u-text-3">POST Arquivo</h5>
-                  <h2 class="u-custom-font u-font-source-sans-pro u-text u-text-4">Envie mídias e arquivos</h2>
-                  <p><h4>Headers</h4>content-type: application/x-www-form-urlencoded<br><h4>Body</h4>number: 55**********<br>file: url do arquivo<br>caption: título do arquivo</p>
-</g>
+            
+                <!-- Container 2: POST Arquivo -->
+                <div class="u-container-style u-layout-cell u-opacity u-opacity-75 u-palette-3-light-2 u-radius-20 u-shape-round u-size-30 u-layout-cell-2" style="background-color: #e6f7f0; box-shadow: 0px 4px 8px rgba(0,0,0,0.1); padding: 20px;">
+                    <div class="u-container-layout u-valign-middle u-container-layout-2">
+                        <h5 style="color: #339966; font-weight: bold; margin-bottom: 10px;">POST Arquivo</h5>
+                        <h2 style="margin-bottom: 15px;">Envie mídias e arquivos</h2>
+                        <p><strong>URL POST:</strong> <a href="http://localhost:8888/media" style="color: #339966;">http://localhost:8888/media</a></p>
+                        <div style="margin-top: 10px;">
+                            <h4 style="margin-bottom: 5px;">Headers</h4>
+                            <p style="margin: 0;">content-type: application/x-www-form-urlencoded</p>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <h4 style="margin-bottom: 5px;">Body</h4>
+                            <p style="margin: 0;">number: 55**********</p>
+                            <p style="margin: 0;">file: url do arquivo</p>
+                            <p style="margin: 0;">caption: título do arquivo</p>
+                        </div>
+                    </div>
+                </div>
+            
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js" crossorigin="anonymous"></script>
     <script>
