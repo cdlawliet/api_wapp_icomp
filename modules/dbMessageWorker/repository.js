@@ -7,7 +7,7 @@ async function buscarMensagemPendente(grupo) {
   const result = await pool.query(
     `
     SELECT *
-    FROM mensagens
+    FROM envio_mensagens
     WHERE enviada = false
       AND grupo = $1
     ORDER BY id
@@ -22,7 +22,7 @@ async function buscarMensagemPendente(grupo) {
 async function marcarComoEnviada(id) {
   await pool.query(
     `
-    UPDATE mensagens
+    UPDATE envio_mensagens
     SET enviada = true,
         enviada_em = NOW()
     WHERE id = $1
