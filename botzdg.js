@@ -38,23 +38,7 @@ app.get('/', (req, res) => {
   res.sendFile('index.html', { root: __dirname });
 });
 
-/* Inicialização do WhatsApp */
-const client = new Client({
-  authStrategy: new LocalAuth({ clientId: 'bot-zdg' }),
-  puppeteer: { 
-    headless: true,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-accelerated-2d-canvas',
-      '--no-first-run',
-      '--no-zygote',
-      '--single-process',
-      '--disable-gpu'
-    ]
-  }
-});
+const client = require('./whatsappClient');
 
 client.initialize();
 
@@ -225,6 +209,3 @@ app.post('/media', [
 server.listen(port, function() {
   console.log('Aplicação rodando na porta *: ' + port + ' . Acesse no link: http://localhost:' + port);
 });
-
-/* 🔥 EXPORTAÇÃO DO CLIENT PARA O autoSender.js */
-module.exports = { client };

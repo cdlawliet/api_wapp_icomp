@@ -1,5 +1,5 @@
 const { getConfig } = require('./configService');
-const { client } = require('./botzdg');
+const client = require('./whatsappClient');
 const { Client } = require('pg');
 
 let running = false;
