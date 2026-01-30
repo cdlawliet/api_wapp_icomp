@@ -1,18 +1,15 @@
 const fs = require('fs');
 const path = require('path');
 
-const CONFIG_PATH = path.join(__dirname, '../config.json');
+const configPath = path.join(__dirname, 'config.json');
 
 function loadConfig() {
-  return JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+  const raw = fs.readFileSync(configPath, 'utf8');
+  return JSON.parse(raw);
 }
 
-function saveConfig(newConfig) {
-  fs.writeFileSync(
-    CONFIG_PATH,
-    JSON.stringify(newConfig, null, 2),
-    'utf8'
-  );
+function saveConfig(data) {
+  fs.writeFileSync(configPath, JSON.stringify(data, null, 2));
 }
 
 module.exports = {
