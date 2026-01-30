@@ -8,34 +8,41 @@ const fileUpload = require('express-fileupload');
 const axios = require('axios');
 const mime = require('mime-types');
 const port = process.env.PORT || 8888;
+
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
 
+/* 🔥 IMPORTAÇÕES NOVAS */
+const configRoutes = require('./configRoutes');
+const { startAutoSender, stopAutoSender } = require('./autoSender');
+
+/* Função delay */
 function delay(t, v) {
   return new Promise(function(resolve) { 
       setTimeout(resolve.bind(null, v), t)
   });
 }
 
+/* Middlewares */
 app.use(express.json());
-app.use(express.urlencoded({
-extended: true
-}));
-app.use(fileUpload({
-debug: true
-}));
-app.use("/", express.static(__dirname + "/"))
+app.use(express.urlencoded({ extended: true }));
+app.use(fileUpload({ debug: true }));
+app.use("/", express.static(__dirname + "/"));
 
+/* Rotas de configuração */
+app.use('/', configRoutes);
+
+/* Página inicial */
 app.get('/', (req, res) => {
-  res.sendFile('index.html', {
-    root: __dirname
-  });
+  res.sendFile('index.html', { root: __dirname });
 });
 
+/* Inicialização do WhatsApp */
 const client = new Client({
   authStrategy: new LocalAuth({ clientId: 'bot-zdg' }),
-  puppeteer: { headless: true,
+  puppeteer: { 
+    headless: true,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -43,64 +50,74 @@ const client = new Client({
       '--disable-accelerated-2d-canvas',
       '--no-first-run',
       '--no-zygote',
-      '--single-process', // <- this one doesn't works in Windows
+      '--single-process',
       '--disable-gpu'
-    ] }
+    ]
+  }
 });
 
 client.initialize();
 
+/* Eventos do Socket.IO */
 io.on('connection', function(socket) {
   socket.emit('message', '© Iniciado');
   socket.emit('qr', './icon.svg');
 
-client.on('qr', (qr) => {
-    console.log('QR RECEIVED', qr);
-    qrcode.toDataURL(qr, (err, url) => {
-      socket.emit('qr', url);
-      socket.emit('message', '© QRCode recebido, aponte a câmera  seu celular!');
-    });
+  client.on('qr', (qr) => {
+      console.log('QR RECEIVED', qr);
+      qrcode.toDataURL(qr, (err, url) => {
+        socket.emit('qr', url);
+        socket.emit('message', '© QRCode recebido, aponte a câmera do seu celular!');
+      });
+  });
+
+  client.on('ready', () => {
+      socket.emit('ready', '© Dispositivo pronto!');
+      socket.emit('message', '© Dispositivo pronto!');
+      socket.emit('qr', './check.svg');
+      console.log('© Dispositivo pronto');
+  });
+
+  client.on('authenticated', () => {
+      socket.emit('authenticated', '© Autenticado!');
+      socket.emit('message', '© Autenticado!');
+      console.log('© Autenticado');
+  });
+
+  client.on('auth_failure', function() {
+      socket.emit('message', '© Falha na autenticação, reiniciando...');
+      console.error('© Falha na autenticação');
+  });
+
+  client.on('change_state', state => {
+    console.log('© Status de conexão: ', state );
+  });
+
+  client.on('disconnected', (reason) => {
+    socket.emit('message', '© Cliente desconectado!');
+    console.log('© Cliente desconectado', reason);
+    client.initialize();
+  });
 });
 
-client.on('ready', () => {
-    socket.emit('ready', '© Dispositivo pronto!');
-    socket.emit('message', '© Dispositivo pronto!');
-    socket.emit('qr', './check.svg')	
-    console.log('© Dispositivo pronto');
+/* 🔥 ROTAS PARA CONTROLE DO ENVIO AUTOMÁTICO */
+app.post('/start-auto', (req, res) => {
+  startAutoSender();
+  res.json({ message: "Envio automático iniciado" });
 });
 
-client.on('authenticated', () => {
-    socket.emit('authenticated', '© Autenticado!');
-    socket.emit('message', '© Autenticado!');
-    console.log('© Autenticado');
+app.post('/stop-auto', (req, res) => {
+  stopAutoSender();
+  res.json({ message: "Envio automático parado" });
 });
 
-client.on('auth_failure', function() {
-    socket.emit('message', '© Falha na autenticação, reiniciando...');
-    console.error('© Falha na autenticação');
-});
-
-client.on('change_state', state => {
-  console.log('© Status de conexão: ', state );
-});
-
-client.on('disconnected', (reason) => {
-  socket.emit('message', '© Cliente desconectado!');
-  console.log('© Cliente desconectado', reason);
-  client.initialize();
-});
-});
-
-// Send message
+/* Rota de envio de mensagem */
 app.post('/message', [
   body('number').notEmpty(),
   body('message').notEmpty(),
 ], async (req, res) => {
-  const errors = validationResult(req).formatWith(({
-    msg
-  }) => {
-    return msg;
-  });
+
+  const errors = validationResult(req).formatWith(({ msg }) => msg);
 
   if (!errors.isEmpty()) {
     return res.status(422).json({
@@ -115,68 +132,42 @@ app.post('/message', [
   const numberUser = number.substr(-8, 8);
   const message = req.body.message;
 
+  let numberZDG = "";
+
   if (numberDDI !== "55") {
-    const numberZDG = number + "@c.us";
-    client.sendMessage(numberZDG, message).then(response => {
-    res.status(200).json({
-      status: true,
-      message: 'Mensagem enviada',
-      response: response
-    });
-    }).catch(err => {
-    res.status(500).json({
-      status: false,
-      message: 'Mensagem não enviada',
-      response: err.text
-    });
-    });
+    numberZDG = number + "@c.us";
+  } else if (parseInt(numberDDD) <= 30) {
+    numberZDG = "55" + numberDDD + "9" + numberUser + "@c.us";
+  } else {
+    numberZDG = "55" + numberDDD + numberUser + "@c.us";
   }
-  else if (numberDDI === "55" && parseInt(numberDDD) <= 30) {
-    const numberZDG = "55" + numberDDD + "9" + numberUser + "@c.us";
-    client.sendMessage(numberZDG, message).then(response => {
-    res.status(200).json({
-      status: true,
-      message: 'Mensagem enviada',
-      response: response
+
+  client.sendMessage(numberZDG, message)
+    .then(response => {
+      res.status(200).json({
+        status: true,
+        message: 'Mensagem enviada',
+        response: response
+      });
+    })
+    .catch(err => {
+      res.status(500).json({
+        status: false,
+        message: 'Mensagem não enviada',
+        response: err.text
+      });
     });
-    }).catch(err => {
-    res.status(500).json({
-      status: false,
-      message: 'Mensagem não enviada',
-      response: err.text
-    });
-    });
-  }
-  else if (numberDDI === "55" && parseInt(numberDDD) > 30) {
-    const numberZDG = "55" + numberDDD + numberUser + "@c.us";
-    client.sendMessage(numberZDG, message).then(response => {
-    res.status(200).json({
-      status: true,
-      message: 'Mensagem enviada',
-      response: response
-    });
-    }).catch(err => {
-    res.status(500).json({
-      status: false,
-      message: 'Mensagem não enviada',
-      response: err.text
-    });
-    });
-  }
 });
 
-
+/* Rota de envio de mídia */
 app.post('/media', [
   body('number').notEmpty(),
   body('caption').notEmpty(),
   body('file').notEmpty(),
   body('fileName'),
 ], async (req, res) => {
-  const errors = validationResult(req).formatWith(({
-    msg
-  }) => {
-    return msg;
-  });
+
+  const errors = validationResult(req).formatWith(({ msg }) => msg);
 
   if (!errors.isEmpty()) {
     return res.status(422).json({
@@ -191,8 +182,7 @@ app.post('/media', [
   const numberUser = number.substr(-8, 8);
   const caption = req.body.caption;
   const fileUrl = req.body.file;
-  const fileName = req.body.fileName|| 'Arquivo';
-  
+  const fileName = req.body.fileName || 'Arquivo';
 
   let mimetype;
   const attachment = await axios.get(fileUrl, {
@@ -204,56 +194,37 @@ app.post('/media', [
 
   const media = new MessageMedia(mimetype, attachment, fileName);
 
+  let numberZDG = "";
+
   if (numberDDI !== "55") {
-    const numberZDG = number + "@c.us";
-    client.sendMessage(numberZDG, media, { caption: caption }).then(response => {
+    numberZDG = number + "@c.us";
+  } else if (parseInt(numberDDD) <= 30) {
+    numberZDG = "55" + numberDDD + "9" + numberUser + "@c.us";
+  } else {
+    numberZDG = "55" + numberDDD + numberUser + "@c.us";
+  }
+
+  client.sendMessage(numberZDG, media, { caption: caption })
+    .then(response => {
       res.status(200).json({
         status: true,
         message: 'Imagem enviada',
         response: response
       });
-    }).catch(err => {
+    })
+    .catch(err => {
       res.status(500).json({
         status: false,
         message: 'Imagem não enviada',
         response: err.text
       });
     });
-  }
-  else if (numberDDI === "55" && parseInt(numberDDD) <= 30) {
-    const numberZDG = "55" + numberDDD + "9" + numberUser + "@c.us";
-    client.sendMessage(numberZDG, media, { caption: caption }).then(response => {
-      res.status(200).json({
-        status: true,
-        message: 'Imagem enviada',
-        response: response
-      });
-    }).catch(err => {
-      res.status(500).json({
-        status: false,
-        message: 'Imagem não enviada',
-        response: err.text
-      });
-    });
-  }
-  else if (numberDDI === "55" && parseInt(numberDDD) > 30) {
-    const numberZDG = "55" + numberDDD + numberUser + "@c.us";
-    client.sendMessage(numberZDG, media, { caption: caption }).then(response => {
-      res.status(200).json({
-        status: true,
-        message: 'Imagem enviada',
-        response: response
-      });
-    }).catch(err => {
-      res.status(500).json({
-        status: false,
-        message: 'Imagem não enviada',
-        response: err.text
-      });
-    });
-  }
 });
-    
+
+/* Inicialização do servidor */
 server.listen(port, function() {
-        console.log('Aplicação rodando na porta *: ' + port + ' . Acesse no link: http://localhost:' + port);
+  console.log('Aplicação rodando na porta *: ' + port + ' . Acesse no link: http://localhost:' + port);
 });
+
+/* 🔥 EXPORTAÇÃO DO CLIENT PARA O autoSender.js */
+module.exports = { client };
