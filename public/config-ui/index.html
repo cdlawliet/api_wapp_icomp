@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Configuração do Bot WhatsApp</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    .box {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 6px;
+    }
+    h2 {
+      margin-top: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px;
+      width: 100%;
+      background: #2d8cff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #1c6ed5;
+    }
+    .ok {
+      color: green;
+      margin-top: 10px;
+    }
+    .err {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="box">
+    <h1>Configuração do Bot</h1>
+
+    <h2>Banco de Dados</h2>
+    <label>Host <input v-model="config.db.host"></label>
+    <label>Porta <input v-model.number="config.db.port" type="number"></label>
+    <label>Usuário <input v-model="config.db.user"></label>
+    <label>Senha <input v-model="config.db.password" type="password"></label>
+    <label>Database <input v-model="config.db.database"></label>
+
+    <h2>Worker</h2>
+    <label>Delay (segundos) <input v-model.number="config.delay" type="number"></label>
+    <label>Grupo <input v-model="config.grupo"></label>
+
+    <h2>API</h2>
+    <label>Base URL <input v-model="config.api.baseUrl"></label>
+
+    <button @click="salvar">Salvar Configuração</button>
+
+    <div v-if="sucesso" class="ok">Configuração salva com sucesso</div>
+    <div v-if="erro" class="err">{{ erro }}</div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
