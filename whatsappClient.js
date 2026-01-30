@@ -13,7 +13,7 @@ async function createClient() {
     authStrategy: new LocalAuth({ clientId: 'bot-zdg' }),
     puppeteer: {
       executablePath,
-      headless: true, // pode ativar/desativar aqui
+      headless: false, // pode ativar/desativar aqui
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox'
