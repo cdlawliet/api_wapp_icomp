@@ -7,10 +7,7 @@ async function executarCiclo() {
 
   try {
     const msg = await repo.buscarMensagemPendente(config.grupo);
-
-    if (!msg) {
-      return;
-    }
+    if (!msg) return;
 
     if (msg.anexo === null) {
       await sender.enviarMensagemTexto(msg);
@@ -20,7 +17,7 @@ async function executarCiclo() {
 
     await repo.marcarComoEnviada(msg.id);
 
-    console.log(`Mensagem ${msg.id} enviada com sucesso`);
+    console.log(`Mensagem ${msg.id} enviada`);
   } catch (err) {
     console.error('Erro no envio:', err.message);
   }
@@ -28,7 +25,6 @@ async function executarCiclo() {
 
 async function loop() {
   const config = loadConfig();
-
   await executarCiclo();
   setTimeout(loop, config.delay * 1000);
 }

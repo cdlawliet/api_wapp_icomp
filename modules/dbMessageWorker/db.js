@@ -1,15 +1,16 @@
 const { Pool } = require('pg');
 const { loadConfig } = require('../../config');
 
-const config = loadConfig();
+function createPool() {
+  const config = loadConfig();
 
-const pool = new Pool({
-  host: config.db.host,
-  port: config.db.port,
-  user: config.db.user,
-  password: config.db.password,
-  database: config.db.database
-});
+  return new Pool({
+    host: config.db.host,
+    port: config.db.port,
+    user: config.db.user,
+    password: config.db.password,
+    database: config.db.database
+  });
+}
 
-module.exports = pool;
-
+module.exports = createPool();
