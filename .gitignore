@@ -1,9 +1,0 @@
-.env
-config.json
-package-lock.json
-
-# Dependency directories
-node_modules/
-logs/
-.wwebjs_auth/
-.wwebjs_cache/
