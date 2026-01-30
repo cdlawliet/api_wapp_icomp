@@ -1,8 +1,9 @@
-const pool = require('./db');
+const getPool = require('./db');
 const { loadConfig } = require('../../config/index');
 
 async function buscarMensagemPendente(grupo) {
   const config = loadConfig();
+  const pool = getPool(config);
 
   const result = await pool.query(
     `
@@ -20,6 +21,9 @@ async function buscarMensagemPendente(grupo) {
 }
 
 async function marcarComoEnviada(id) {
+  const config = loadConfig();
+  const pool = getPool(config);
+
   await pool.query(
     `
     UPDATE envio_mensagens
@@ -35,3 +39,4 @@ module.exports = {
   buscarMensagemPendente,
   marcarComoEnviada
 };
+

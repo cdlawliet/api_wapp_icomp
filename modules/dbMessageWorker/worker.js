@@ -1,21 +1,21 @@
-const { loadConfig } = require('../../config/index');
 const repo = require('./repository');
 const sender = require('./sender');
+const { loadConfig } = require('../../config');
 
 async function executarCiclo() {
-  const config = loadConfig();
-
   try {
-    const msg = await repo.buscarMensagemPendente(config.grupo);
+    const msg = await repo.buscarMensagemPendente();
+
     if (!msg) return;
 
-    if (!msg.anexo) {
+    if (msg.anexo === null) {
       await sender.enviarMensagemTexto(msg);
     } else {
       await sender.enviarMensagemComAnexo(msg);
     }
 
     await repo.marcarComoEnviada(msg.id);
+
     console.log(`Mensagem ${msg.id} enviada`);
   } catch (err) {
     console.error('Erro no envio:', err.message);
