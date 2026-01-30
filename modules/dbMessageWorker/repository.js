@@ -24,7 +24,7 @@ async function marcarComoEnviada(id) {
     `
     UPDATE envio_mensagens
     SET enviada = true,
-        enviada_em = NOW()
+        updated_at = NOW()
     WHERE id = $1
     `,
     [id]
