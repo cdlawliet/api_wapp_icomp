@@ -1,5 +1,5 @@
 const { getConfig } = require('./configService');
-const client = require('./whatsappClient');
+const { client, isReady } = require('./whatsappClient');
 const { Client } = require('pg');
 
 let running = false;
@@ -12,6 +12,12 @@ async function startAutoSender() {
 
     while (running) {
         try {
+            if (!isReady) {
+                console.log("⏳ WhatsApp ainda não está pronto. Aguardando...");
+                await delay(3000);
+                continue;
+            }
+
             const config = getConfig();
 
             const db = new Client({
@@ -89,7 +95,7 @@ async function startAutoSender() {
 
         } catch (err) {
             console.error("❌ Erro no envio automático:", err);
-            await new Promise(resolve => setTimeout(resolve, 5000));
+            await delay(5000);
         }
     }
 }
