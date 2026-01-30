@@ -1,5 +1,5 @@
 const { getConfig } = require('./configService');
-const { client, isReady } = require('./whatsappClient');
+const { getClient, isReady } = require('./whatsappClient');
 const { Client } = require('pg');
 
 let running = false;
@@ -17,6 +17,8 @@ async function startAutoSender() {
                 await delay(3000);
                 continue;
             }
+
+            const client = getClient(); // <-- AGORA FUNCIONA
 
             const config = getConfig();
 

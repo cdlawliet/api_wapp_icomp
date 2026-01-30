@@ -1,54 +1,58 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
+const puppeteer = require('puppeteer');
 
 let isReady = false;
+let client = null;
 
-const client = new Client({
-  authStrategy: new LocalAuth({ clientId: 'bot-zdg' }),
-  puppeteer: { 
-    headless: false,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-accelerated-2d-canvas',
-      '--no-first-run',
-      '--no-zygote',
-      '--single-process',
-      '--disable-gpu'
-    ]
-  }
-});
+async function createClient() {
+  if (client) return client; // evita criar duas vezes
 
-client.on('ready', async () => {
-  console.log("✔ WhatsApp pronto! Validando sessão...");
+  const executablePath = puppeteer.executablePath();
 
-  try {
-    // Teste real: tenta buscar o próprio número
-    const me = await client.getMe();
+  client = new Client({
+    authStrategy: new LocalAuth({ clientId: 'bot-zdg' }),
+    puppeteer: {
+      executablePath,
+      headless: false,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox'
+      ]
+    }
+  });
 
-    if (me && me.id) {
-      console.log("✔ Sessão validada. WhatsApp realmente pronto para enviar mensagens.");
-      isReady = true;
-    } else {
-      console.log("⏳ Sessão ainda carregando. Aguardando...");
+  client.on('authenticated', () => {
+    console.log("✔ WhatsApp autenticado");
+  });
+
+  client.on('ready', async () => {
+    console.log("✔ WhatsApp pronto! Validando sessão...");
+
+    try {
+      const me = await client.getMe();
+
+      if (me && me.id) {
+        console.log("✔ Sessão validada. WhatsApp realmente pronto para enviar mensagens.");
+        isReady = true;
+      } else {
+        console.log("⏳ Sessão ainda carregando. Aguardando...");
+        isReady = false;
+      }
+
+    } catch (err) {
+      console.log("⏳ WhatsApp ainda não está pronto. Aguardando...");
       isReady = false;
     }
+  });
 
-  } catch (err) {
-    console.log("⏳ WhatsApp ainda não está pronto. Aguardando...");
+  client.on('disconnected', () => {
+    console.log("❌ WhatsApp desconectado");
     isReady = false;
-  }
-});
+  });
 
-client.on('authenticated', () => {
-  console.log("✔ WhatsApp autenticado");
-});
+  client.initialize();
 
-client.on('disconnected', () => {
-  console.log("❌ WhatsApp desconectado");
-  isReady = false;
-});
+  return client;
+}
 
-client.initialize();
-
-module.exports = { client, isReady };
+module.exports = { createClient, getClient: () => client, isReady };
