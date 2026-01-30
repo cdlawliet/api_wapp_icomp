@@ -1,34 +1,34 @@
 const pool = require('./db');
-const { loadConfig } = require('../../config');
-const config = loadConfig();
+const { loadConfig } = require('../../config/index');
 
-async function buscarMensagemPendente() {
-  const sql = `
-    SELECT
-      id,
-      fone_destino,
-      mensagem,
-      anexo,
-      nome_original_arquivo_anexo
-    FROM envio_mensagens
-    WHERE msg_grupo = $1
-      AND enviada IS FALSE
-    ORDER BY id ASC
+async function buscarMensagemPendente(grupo) {
+  const config = loadConfig();
+
+  const result = await pool.query(
+    `
+    SELECT *
+    FROM mensagens
+    WHERE enviada = false
+      AND grupo = $1
+    ORDER BY id
     LIMIT 1
-  `;
+    `,
+    [grupo || config.grupo]
+  );
 
-  const result = await pool.query(sql, [config.grupo]);
   return result.rows[0] || null;
 }
 
 async function marcarComoEnviada(id) {
-  const sql = `
-    UPDATE envio_mensagens
-       SET enviada = TRUE
-     WHERE id = $1
-  `;
-
-  await pool.query(sql, [id]);
+  await pool.query(
+    `
+    UPDATE mensagens
+    SET enviada = true,
+        enviada_em = NOW()
+    WHERE id = $1
+    `,
+    [id]
+  );
 }
 
 module.exports = {
