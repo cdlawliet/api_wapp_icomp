@@ -1,38 +1,42 @@
 const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
-const { loadConfig } = require('../../config');
-const config = loadConfig();
-
-function montarNumero(fone) {
-  return `55${fone}`;
-}
+const FormData = require('form-data');
+const { loadConfig } = require('../../config/index');
 
 async function enviarMensagemTexto(msg) {
-  await axios.post(`${config.api.baseUrl}/message`, {
-    number: montarNumero(msg.fone_destino),
+  const config = loadConfig();
+
+  const payload = {
+    number: '55' + msg.fone_destino,
     message: msg.mensagem
-  });
+  };
+
+  await axios.post(
+    `${config.api.baseUrl}/message`,
+    payload
+  );
 }
 
 async function enviarMensagemComAnexo(msg) {
-  const tempDir = path.join(__dirname, 'tmp');
+  const config = loadConfig();
 
-  if (!fs.existsSync(tempDir)) {
-    fs.mkdirSync(tempDir);
-  }
+  const form = new FormData();
 
-  const filePath = path.join(tempDir, msg.nome_original_arquivo_anexo);
-  fs.writeFileSync(filePath, msg.anexo);
+  form.append('number', '55' + msg.fone_destino);
+  form.append('caption', msg.mensagem || '');
+  form.append(
+    'file',
+    Buffer.from(msg.anexo),
+    msg.nome_original_arquivo_anexo
+  );
+  form.append('namemedia', msg.nome_original_arquivo_anexo);
 
-  const fileUrl = `${config.api.baseUrl}/tmp/${msg.nome_original_arquivo_anexo}`;
-
-  await axios.post(`${config.api.baseUrl}/media`, {
-    number: montarNumero(msg.fone_destino),
-    caption: msg.mensagem,
-    file: fileUrl,
-    fileName: msg.nome_original_arquivo_anexo
-  });
+  await axios.post(
+    `${config.api.baseUrl}/media`,
+    form,
+    {
+      headers: form.getHeaders()
+    }
+  );
 }
 
 module.exports = {
