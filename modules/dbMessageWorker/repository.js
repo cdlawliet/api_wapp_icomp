@@ -9,7 +9,7 @@ async function buscarMensagemPendente(grupo) {
     SELECT *
     FROM envio_mensagens
     WHERE enviada = false
-      AND grupo = $1
+      AND msg_grupo = $1
     ORDER BY id
     LIMIT 1
     `,
