@@ -1,5 +1,5 @@
 const { Pool } = require('pg');
-const { loadConfig } = require('../../config');
+const { loadConfig } = require('../../config/index');
 
 function createPool() {
   const config = loadConfig();

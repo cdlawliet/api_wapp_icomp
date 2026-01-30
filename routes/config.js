@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { loadConfig, saveConfig } = require('../config');
+const configService = require('../config/index');
 
 router.get('/', (req, res) => {
-  res.json(loadConfig());
+  res.json(configService.loadConfig());
 });
 
 router.put('/', (req, res) => {
@@ -13,7 +13,7 @@ router.put('/', (req, res) => {
     return res.status(400).json({ error: 'Configuração inválida' });
   }
 
-  saveConfig(newConfig);
+  configService.saveConfig(newConfig);
 
   res.json({
     status: true,

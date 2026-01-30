@@ -1,4 +1,4 @@
-const { loadConfig } = require('../../config');
+const { loadConfig } = require('../../config/index');
 const iniciarWorker = require('./worker');
 
 module.exports = function () {
