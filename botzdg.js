@@ -19,6 +19,7 @@ function delay(t, v) {
 }
 
 app.use(express.json());
+app.use('/tmp', express.static(__dirname + '/modules/dbMessageWorker/tmp'));
 app.use(express.urlencoded({
 extended: true
 }));
@@ -257,3 +258,6 @@ app.post('/media', [
 server.listen(port, function() {
         console.log('Aplicação rodando na porta *: ' + port + ' . Acesse no link: http://localhost:' + port);
 });
+
+// INICIALIZA O WORKER DO BANCO (NÃO ALTERA A API)
+require('./modules/dbMessageWorker')();
