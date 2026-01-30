@@ -1,6 +1,14 @@
+const { loadConfig } = require('../../config');
 const iniciarWorker = require('./worker');
 
 module.exports = function () {
-  console.log('DB Message Worker iniciado');
+  const config = loadConfig();
+
+  console.log('==============================');
+  console.log(' DB Message Worker iniciado');
+  console.log(' Grupo:', config.grupo);
+  console.log(' Delay:', config.delay, 'segundos');
+  console.log('==============================');
+
   iniciarWorker();
 };

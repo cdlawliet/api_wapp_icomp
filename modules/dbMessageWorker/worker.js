@@ -1,10 +1,12 @@
-const config = require('./config');
+const { loadConfig } = require('../../config');
 const repo = require('./repository');
 const sender = require('./sender');
 
 async function executarCiclo() {
+  const config = loadConfig();
+
   try {
-    const msg = await repo.buscarMensagemPendente();
+    const msg = await repo.buscarMensagemPendente(config.grupo);
 
     if (!msg) {
       return;
@@ -25,6 +27,8 @@ async function executarCiclo() {
 }
 
 async function loop() {
+  const config = loadConfig();
+
   await executarCiclo();
   setTimeout(loop, config.delay * 1000);
 }

@@ -19,6 +19,7 @@ function delay(t, v) {
 }
 
 app.use(express.json());
+app.use('/config', require('./routes/config'));
 app.use('/tmp', express.static(__dirname + '/modules/dbMessageWorker/tmp'));
 app.use(express.urlencoded({
 extended: true
