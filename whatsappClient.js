@@ -1,8 +1,8 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const puppeteer = require('puppeteer');
 
-let isReady = false;
 let client = null;
+let readyState = false;
 
 async function createClient() {
   if (client) return client; // evita criar duas vezes
@@ -13,7 +13,7 @@ async function createClient() {
     authStrategy: new LocalAuth({ clientId: 'bot-zdg' }),
     puppeteer: {
       executablePath,
-      headless: false,
+      headless: true, // pode ativar/desativar aqui
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox'
@@ -33,21 +33,21 @@ async function createClient() {
 
       if (me && me.id) {
         console.log("✔ Sessão validada. WhatsApp realmente pronto para enviar mensagens.");
-        isReady = true;
+        readyState = true;
       } else {
         console.log("⏳ Sessão ainda carregando. Aguardando...");
-        isReady = false;
+        readyState = false;
       }
 
     } catch (err) {
       console.log("⏳ WhatsApp ainda não está pronto. Aguardando...");
-      isReady = false;
+      readyState = false;
     }
   });
 
   client.on('disconnected', () => {
     console.log("❌ WhatsApp desconectado");
-    isReady = false;
+    readyState = false;
   });
 
   client.initialize();
@@ -55,4 +55,8 @@ async function createClient() {
   return client;
 }
 
-module.exports = { createClient, getClient: () => client, isReady };
+module.exports = {
+  createClient,
+  getClient: () => client,
+  isReady: () => readyState
+};

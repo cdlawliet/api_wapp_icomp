@@ -12,13 +12,13 @@ async function startAutoSender() {
 
     while (running) {
         try {
-            if (!isReady) {
+            if (!isReady()) {
                 console.log("⏳ WhatsApp ainda não está pronto. Aguardando...");
                 await delay(3000);
                 continue;
             }
 
-            const client = getClient(); // <-- AGORA FUNCIONA
+            const client = getClient();
 
             const config = getConfig();
 

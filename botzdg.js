@@ -12,7 +12,6 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
 
-/* Importações */
 const { createClient } = require('./whatsappClient');
 const configRoutes = require('./configRoutes');
 const { startAutoSender, stopAutoSender } = require('./autoSender');
@@ -71,6 +70,37 @@ const { startAutoSender, stopAutoSender } = require('./autoSender');
   app.post('/stop-auto', (req, res) => {
     stopAutoSender();
     res.json({ message: "Envio automático parado" });
+  });
+
+  app.post('/message', [
+    body('number').notEmpty(),
+    body('message').notEmpty(),
+  ], async (req, res) => {
+
+    const errors = validationResult(req).formatWith(({ msg }) => msg);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ status: false, message: errors.mapped() });
+    }
+
+    const number = req.body.number;
+    const numberDDI = number.substr(0, 2);
+    const numberDDD = number.substr(2, 2);
+    const numberUser = number.substr(-8, 8);
+    const message = req.body.message;
+
+    let numberZDG = "";
+
+    if (numberDDI !== "55") {
+      numberZDG = number + "@c.us";
+    } else if (parseInt(numberDDD) <= 30) {
+      numberZDG = "55" + numberDDD + "9" + numberUser + "@c.us";
+    } else {
+      numberZDG = "55" + numberDDD + numberUser + "@c.us";
+    }
+
+    client.sendMessage(numberZDG, message)
+      .then(response => res.status(200).json({ status: true, message: 'Mensagem enviada', response }))
+      .catch(err => res.status(500).json({ status: false, message: 'Mensagem não enviada', response: err.text }));
   });
 
   server.listen(port, function() {
