@@ -19,9 +19,25 @@ const client = new Client({
   }
 });
 
-client.on('ready', () => {
-  console.log("✔ WhatsApp pronto!");
-  isReady = true;
+client.on('ready', async () => {
+  console.log("✔ WhatsApp pronto! Validando sessão...");
+
+  try {
+    // Teste real: tenta buscar o próprio número
+    const me = await client.getMe();
+
+    if (me && me.id) {
+      console.log("✔ Sessão validada. WhatsApp realmente pronto para enviar mensagens.");
+      isReady = true;
+    } else {
+      console.log("⏳ Sessão ainda carregando. Aguardando...");
+      isReady = false;
+    }
+
+  } catch (err) {
+    console.log("⏳ WhatsApp ainda não está pronto. Aguardando...");
+    isReady = false;
+  }
 });
 
 client.on('authenticated', () => {
