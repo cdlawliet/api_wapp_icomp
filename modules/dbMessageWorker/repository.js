@@ -1,5 +1,6 @@
 const pool = require('./db');
-const config = require('./config');
+const { loadConfig } = require('../../config');
+const config = loadConfig();
 
 async function buscarMensagemPendente() {
   const sql = `
