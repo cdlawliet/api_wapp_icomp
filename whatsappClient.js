@@ -15,8 +15,11 @@ async function createClient() {
       executablePath,
       headless: false,
       args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox'
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--restore-last-session=false',
+    '--disable-session-crashed-bubble'
+
       ]
     }
   });
