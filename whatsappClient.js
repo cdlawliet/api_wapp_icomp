@@ -5,7 +5,7 @@ let isReady = false;
 const client = new Client({
   authStrategy: new LocalAuth({ clientId: 'bot-zdg' }),
   puppeteer: { 
-    headless: true,
+    headless: false,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
