@@ -1,81 +1,220 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Configuração do Bot WhatsApp</title>
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <meta charset="UTF-8" />
+  <title>Configuração da API</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Vue 3 CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+
+  <!-- Fonte -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
   <style>
+    * { box-sizing: border-box; }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      padding: 20px;
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f172a, #020617);
+      color: #e5e7eb;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .box {
-      max-width: 600px;
-      margin: auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 6px;
+
+    .card {
+      width: 100%;
+      max-width: 720px;
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 14px;
+      padding: 28px;
+      box-shadow: 0 25px 60px rgba(0,0,0,.55);
     }
-    h2 {
-      margin-top: 20px;
+
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 6px;
     }
+
+    .subtitle {
+      color: #94a3b8;
+      margin-bottom: 22px;
+      font-size: .9rem;
+    }
+
+    .section {
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-size: .9rem;
+      color: #38bdf8;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
     label {
+      font-size: .8rem;
+      color: #cbd5f5;
       display: block;
-      margin-top: 10px;
+      margin-bottom: 6px;
     }
+
     input {
       width: 100%;
-      padding: 8px;
-      margin-top: 4px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #1e293b;
+      background: #020617;
+      color: #e5e7eb;
+      outline: none;
     }
-    button {
+
+    input:focus {
+      border-color: #38bdf8;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-top: 20px;
-      padding: 10px;
-      width: 100%;
-      background: #2d8cff;
-      color: #fff;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
       border: none;
+      color: #020617;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-weight: 600;
       cursor: pointer;
-      font-size: 16px;
     }
+
     button:hover {
-      background: #1c6ed5;
+      filter: brightness(1.05);
     }
-    .ok {
-      color: green;
-      margin-top: 10px;
+
+    .status {
+      font-size: .85rem;
+      color: #22c55e;
     }
-    .err {
-      color: red;
-      margin-top: 10px;
+
+    .footer {
+      margin-top: 18px;
+      font-size: .75rem;
+      color: #64748b;
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <div id="app" class="box">
-    <h1>Configuração do Bot</h1>
+  <div id="app" class="card">
+    <h1>Configuração da API</h1>
+    <div class="subtitle">Gerencie os parâmetros do worker sem reiniciar a aplicação</div>
 
-    <h2>Banco de Dados</h2>
-    <label>Host <input v-model="config.db.host"></label>
-    <label>Porta <input v-model.number="config.db.port" type="number"></label>
-    <label>Usuário <input v-model="config.db.user"></label>
-    <label>Senha <input v-model="config.db.password" type="password"></label>
-    <label>Database <input v-model="config.db.database"></label>
+    <div class="section">
+      <div class="section-title">Banco de Dados</div>
+      <div class="grid">
+        <div>
+          <label>Host</label>
+          <input v-model="config.db.host">
+        </div>
+        <div>
+          <label>Porta</label>
+          <input v-model.number="config.db.port">
+        </div>
+        <div>
+          <label>Usuário</label>
+          <input v-model="config.db.user">
+        </div>
+        <div>
+          <label>Senha</label>
+          <input type="password" v-model="config.db.password">
+        </div>
+        <div>
+          <label>Database</label>
+          <input v-model="config.db.database">
+        </div>
+      </div>
+    </div>
 
-    <h2>Worker</h2>
-    <label>Delay (segundos) <input v-model.number="config.delay" type="number"></label>
-    <label>Grupo <input v-model="config.grupo"></label>
+    <div class="section">
+      <div class="section-title">Worker</div>
+      <div class="grid">
+        <div>
+          <label>Grupo</label>
+          <input v-model="config.grupo">
+        </div>
+        <div>
+          <label>Delay (segundos)</label>
+          <input type="number" v-model.number="config.delay">
+        </div>
+      </div>
+    </div>
 
-    <h2>API</h2>
-    <label>Base URL <input v-model="config.api.baseUrl"></label>
+    <div class="section">
+      <div class="section-title">API</div>
+      <div class="grid">
+        <div>
+          <label>Base URL</label>
+          <input v-model="config.api.baseUrl">
+        </div>
+      </div>
+    </div>
 
-    <button @click="salvar">Salvar Configuração</button>
+    <div class="actions">
+      <button @click="salvar">Salvar Configuração</button>
+      <div class="status" v-if="status">✔ {{ status }}</div>
+    </div>
 
-    <div v-if="sucesso" class="ok">Configuração salva com sucesso</div>
-    <div v-if="erro" class="err">{{ erro }}</div>
+    <div class="footer">
+      Config UI • Bot WhatsApp
+    </div>
   </div>
 
-  <script src="./app.js"></script>
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          config: {
+            db: {},
+            api: {}
+          },
+          status: ''
+        }
+      },
+      async mounted() {
+        const res = await fetch('/config');
+        this.config = await res.json();
+      },
+      methods: {
+        async salvar() {
+          await fetch('/config', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(this.config)
+          });
+          this.status = 'Configuração salva com sucesso';
+          setTimeout(() => this.status = '', 3000);
+        }
+      }
+    }).mount('#app');
+  </script>
 </body>
 </html>
