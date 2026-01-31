@@ -59,12 +59,12 @@
     .pill {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
       border: 1px solid #1e293b;
       background: #0b1220;
       padding: 10px 12px;
       border-radius: 12px;
-      min-width: 260px;
+      min-width: 320px;
       justify-content: space-between;
     }
 
@@ -82,6 +82,10 @@
     .pill-value {
       font-size: .95rem;
       font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     .badge {
@@ -164,19 +168,19 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      white-space: nowrap;
     }
 
     .btn:hover { filter: brightness(1.05); }
 
+    .btn:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
     .btn-primary {
       background: linear-gradient(135deg, #38bdf8, #0ea5e9);
       color: #020617;
-    }
-
-    .btn-ghost {
-      background: transparent;
-      border: 1px solid #1e293b;
-      color: #e5e7eb;
     }
 
     .btn-danger {
@@ -216,7 +220,15 @@
     .divider {
       height: 1px;
       background: #1e293b;
-      margin: 14px 0 4px;
+      margin: 14px 0 18px;
+    }
+
+    .pill-actions {
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:flex-end;
+      flex-wrap: nowrap;
     }
   </style>
 </head>
@@ -229,37 +241,47 @@
         <div class="subtitle">Gerencie parâmetros e ative/desative o envio automático sem reiniciar.</div>
       </div>
 
+      <!-- PILL DO WORKER (corrigido) -->
       <div class="pill">
         <div class="pill-left">
           <div class="pill-title">Envio automático</div>
+
           <div class="pill-value">
             <span v-if="worker.running">Ativo</span>
             <span v-else>Parado</span>
+
             <span class="badge" :class="worker.running ? 'on' : 'off'">
               {{ worker.running ? 'ON' : 'OFF' }}
             </span>
           </div>
+
           <div class="muted" v-if="worker.loading">verificando status...</div>
         </div>
 
-<div style="display:flex; gap:10px; align-items:center;">
-  <button
-    v-if="!worker.running"
-    class="btn btn-success"
-    @click="ativarWorker"
-    :disabled="worker.loading"
-  >
-    ▶ Ativar
-  </button>
-  <button
-    v-else
-    class="btn btn-danger"
-    @click="pararWorker"
-    :disabled="worker.loading"
-  >
-    ■ Parar
-  </button>
-</div>
+        <div class="pill-actions">
+          <!-- Mostra ATIVAR somente quando estiver parado -->
+          <button
+            v-if="!worker.running"
+            class="btn btn-success"
+            @click="ativarWorker"
+            :disabled="worker.loading"
+          >
+            ▶ Ativar
+          </button>
+
+          <!-- Mostra PARAR somente quando estiver ativo -->
+          <button
+            v-else
+            class="btn btn-danger"
+            @click="pararWorker"
+            :disabled="worker.loading"
+          >
+            ■ Parar
+          </button>
+        </div>
+      </div>
+      <!-- /PILL -->
+    </div>
 
     <div class="divider"></div>
 
