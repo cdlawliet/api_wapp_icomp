@@ -1,4 +1,4 @@
-const { loadConfig } = require('../../config');
+const { loadConfig } = require('../../config/index');
 const repo = require('./repository');
 const sender = require('./sender');
 
