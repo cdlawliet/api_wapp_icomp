@@ -1,35 +1,22 @@
-const { loadConfig } = require('../../config/index');
 const repo = require('./repository');
 const sender = require('./sender');
+const { loadConfig } = require('../../config/index');
 
 async function executarCiclo() {
-  try {
-    const config = loadConfig();
-
-    const msg = await repo.buscarMensagemPendente(config.grupo);
-
-    if (!msg) return;
-
-    if (msg.anexo === null) {
-      await sender.enviarMensagemTexto(msg);
-    } else {
-      await sender.enviarMensagemComAnexo(msg);
-    }
-
-    await repo.marcarComoEnviada(msg.id);
-
-    console.log(`Mensagem ${msg.id} enviada com sucesso`);
-  } catch (err) {
-    console.error('Erro no envio:', err.message);
-  }
-}
-
-async function loop() {
   const config = loadConfig();
 
-  await executarCiclo();
+  const msg = await repo.buscarMensagemPendente(config.grupo);
+  if (!msg) return;
 
-  setTimeout(loop, config.delay * 1000);
+  if (msg.anexo === null) {
+    await sender.enviarMensagemTexto(msg);
+  } else {
+    await sender.enviarMensagemComAnexo(msg);
+  }
+
+  await repo.marcarComoEnviada(msg.id);
+
+  console.log(`[Worker] Mensagem ${msg.id} enviada com sucesso`);
 }
 
-module.exports = loop;
+module.exports = executarCiclo;

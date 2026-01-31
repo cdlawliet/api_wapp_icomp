@@ -20,6 +20,7 @@ function delay(t, v) {
 
 app.use(express.json());
 app.use('/config', require('./routes/config'));
+app.use('/worker', require('./routes/worker'));
 app.use('/tmp', express.static(__dirname + '/modules/dbMessageWorker/tmp'));
 app.use(express.static('public'));
 app.use(express.urlencoded({
