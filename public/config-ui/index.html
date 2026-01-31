@@ -242,16 +242,24 @@
           <div class="muted" v-if="worker.loading">verificando status...</div>
         </div>
 
-        <div style="display:flex; gap:10px; align-items:center;">
-          <button class="btn btn-success" @click="ativarWorker" :disabled="worker.loading || worker.running">
-            ▶ Ativar
-          </button>
-          <button class="btn btn-danger" @click="pararWorker" :disabled="worker.loading || !worker.running">
-            ■ Parar
-          </button>
-        </div>
-      </div>
-    </div>
+<div style="display:flex; gap:10px; align-items:center;">
+  <button
+    v-if="!worker.running"
+    class="btn btn-success"
+    @click="ativarWorker"
+    :disabled="worker.loading"
+  >
+    ▶ Ativar
+  </button>
+  <button
+    v-else
+    class="btn btn-danger"
+    @click="pararWorker"
+    :disabled="worker.loading"
+  >
+    ■ Parar
+  </button>
+</div>
 
     <div class="divider"></div>
 
