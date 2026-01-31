@@ -1,10 +1,12 @@
+const { loadConfig } = require('../../config');
 const repo = require('./repository');
 const sender = require('./sender');
-const { loadConfig } = require('../../config');
 
 async function executarCiclo() {
   try {
-    const msg = await repo.buscarMensagemPendente();
+    const config = loadConfig();
+
+    const msg = await repo.buscarMensagemPendente(config.grupo);
 
     if (!msg) return;
 
@@ -16,7 +18,7 @@ async function executarCiclo() {
 
     await repo.marcarComoEnviada(msg.id);
 
-    console.log(`Mensagem ${msg.id} enviada`);
+    console.log(`Mensagem ${msg.id} enviada com sucesso`);
   } catch (err) {
     console.error('Erro no envio:', err.message);
   }
@@ -24,7 +26,9 @@ async function executarCiclo() {
 
 async function loop() {
   const config = loadConfig();
+
   await executarCiclo();
+
   setTimeout(loop, config.delay * 1000);
 }
 
