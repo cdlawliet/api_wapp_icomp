@@ -8,10 +8,16 @@ module.exports = function () {
   console.log(' DB Message Worker carregado');
   console.log(' Grupo:', config.grupo);
   console.log(' Delay:', config.delay, 'segundos');
-  console.log(' Status inicial: PARADO');
+  console.log(' AutoStart:', !!config.autoStartWorker);
   console.log('==============================');
 
-  // NÃO inicia aqui. Apenas deixa pronto.
+  if (config.autoStartWorker) {
+    const r = controller.start();
+    console.log('[Worker] AutoStart:', r.message);
+  } else {
+    console.log('[Worker] Iniciando PARADO (manual via painel)');
+  }
+
   return controller;
 };
 

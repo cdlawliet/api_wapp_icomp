@@ -2,14 +2,17 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Configuração da API</title>
+  <title>CaioFlix Mensagens</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- Vue 3 CDN -->
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 
+  <!-- Socket.IO client (servido pelo seu backend) -->
+  <script src="/socket.io/socket.io.js"></script>
+
   <!-- Fonte -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     * { box-sizing: border-box; }
@@ -28,74 +31,168 @@
 
     .card {
       width: 100%;
-      max-width: 820px;
+      max-width: 980px;
       background: #020617;
       border: 1px solid #1e293b;
       border-radius: 14px;
-      padding: 28px;
+      padding: 22px;
       box-shadow: 0 25px 60px rgba(0,0,0,.55);
+      position: relative;
+      overflow: hidden;
     }
 
-    h1 {
-      font-size: 1.4rem;
-      margin: 0 0 6px;
+    /* ===== HEADER / BRAND ===== */
+    .brandbar {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .brand-left {
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width: 240px;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      border: 1px solid #1e293b;
+      background: rgba(255,255,255,.02);
+      object-fit: contain;
+      padding: 6px;
+    }
+
+    .brand-title {
+      display:flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-title h1{
+      margin: 0;
+      font-size: 1.22rem;
+      letter-spacing: .01em;
     }
 
     .subtitle {
       color: #94a3b8;
-      margin-bottom: 18px;
       font-size: .9rem;
+      margin: 0;
     }
 
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
+    .top-actions {
+      display:flex;
+      gap: 10px;
+      align-items:center;
       flex-wrap: wrap;
+      justify-content:flex-end;
+    }
+
+    .btn {
+      border: none;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: filter .15s ease, transform .05s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .btn:hover { filter: brightness(1.05); }
+    .btn:active { transform: translateY(1px); }
+    .btn:disabled { opacity: .55; cursor: not-allowed; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      color: #020617;
+    }
+    .btn-ghost {
+      border: 1px solid #1e293b;
+      background: rgba(255,255,255,.02);
+      color: #e5e7eb;
+    }
+    .btn-danger {
+      background: rgba(248,113,113,.12);
+      border: 1px solid rgba(248,113,113,.35);
+      color: #f87171;
+    }
+    .btn-success {
+      background: rgba(34,197,94,.12);
+      border: 1px solid rgba(34,197,94,.35);
+      color: #22c55e;
+    }
+
+    .divider {
+      height: 1px;
+      background: #1e293b;
+      margin: 14px 0 18px;
+    }
+
+    /* ===== SECTION TITLES ===== */
+    .section {
       margin-bottom: 18px;
     }
 
+    .section-title {
+      font-size: .86rem;
+      color: #38bdf8;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    /* ===== WORKER PILL ===== */
     .pill {
       display: inline-flex;
       align-items: center;
       gap: 12px;
       border: 1px solid #1e293b;
       background: #0b1220;
-      padding: 10px 12px;
-      border-radius: 12px;
-      min-width: 320px;
+      padding: 12px;
+      border-radius: 14px;
       justify-content: space-between;
+      width: 100%;
     }
 
     .pill-left {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 4px;
     }
 
     .pill-title {
-      font-size: .78rem;
+      font-size: .8rem;
       color: #94a3b8;
     }
 
     .pill-value {
-      font-size: .95rem;
-      font-weight: 600;
+      font-size: 1.0rem;
+      font-weight: 800;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
     .badge {
       font-size: .75rem;
-      padding: 4px 8px;
+      padding: 5px 10px;
       border-radius: 999px;
       border: 1px solid #1e293b;
       background: #020617;
       color: #e5e7eb;
       white-space: nowrap;
+      font-weight: 800;
+      letter-spacing: .03em;
     }
 
     .badge.on {
@@ -103,25 +200,195 @@
       background: rgba(34,197,94,.12);
       color: #22c55e;
     }
-
     .badge.off {
       border-color: rgba(248,113,113,.35);
       background: rgba(248,113,113,.10);
       color: #f87171;
     }
 
-    .section {
-      margin-bottom: 22px;
+    .pill-actions {
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:flex-end;
+      flex-wrap: wrap;
     }
 
-    .section-title {
-      font-size: .9rem;
-      color: #38bdf8;
+    /* checkbox */
+    .checkline {
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      margin-top: 6px;
+      color: #cbd5f5;
+      font-size: .88rem;
+      font-weight: 600;
+    }
+    .checkline input[type="checkbox"]{
+      width: 18px;
+      height: 18px;
+      accent-color: #38bdf8;
+    }
+
+    .muted {
+      font-size: .78rem;
+      color: #64748b;
+    }
+
+    .status {
+      font-size: .85rem;
+      color: #22c55e;
+      font-weight: 700;
+    }
+    .error {
+      font-size: .85rem;
+      color: #f87171;
+      font-weight: 700;
+    }
+
+    /* ===== WHATSAPP PANEL ===== */
+    .wa-wrap {
+      border: 1px solid #1e293b;
+      background: rgba(255,255,255,.02);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .wa-grid {
+      display: grid;
+      gap: 14px;
+      align-items: start;
+    }
+    .wa-grid.with-qr { grid-template-columns: 320px 1fr; }
+    .wa-grid.no-qr { grid-template-columns: 1fr; }
+
+    .wa-card {
+      border: 1px solid #1e293b;
+      background: rgba(2,6,23,.65);
+      border-radius: 14px;
+      padding: 14px;
+      overflow: hidden;
+    }
+
+    .wa-card-header {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
       margin-bottom: 12px;
-      text-transform: uppercase;
-      letter-spacing: .04em;
     }
 
+    .wa-title {
+      font-weight: 800;
+      letter-spacing: .02em;
+    }
+
+    .wa-chip {
+      font-size: .72rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #1e293b;
+      background: #020617;
+      color: #cbd5f5;
+      white-space: nowrap;
+      font-weight: 800;
+    }
+    .wa-chip.ok {
+      border-color: rgba(34,197,94,.35);
+      background: rgba(34,197,94,.12);
+      color: #22c55e;
+    }
+    .wa-chip.warn {
+      border-color: rgba(248,113,113,.35);
+      background: rgba(248,113,113,.10);
+      color: #f87171;
+    }
+
+    .qr-img {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px dashed rgba(56,189,248,.25);
+      background: rgba(255,255,255,.02);
+      display:block;
+    }
+
+    .logs-header {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .logs-actions {
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap: wrap;
+      justify-content:flex-end;
+    }
+
+    .btn-sm {
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      border: 1px solid #1e293b;
+      background: rgba(255,255,255,.02);
+      color: #e5e7eb;
+      user-select: none;
+    }
+    .btn-sm:hover { border-color: rgba(56,189,248,.35); }
+
+    .logs-box {
+      max-height: 260px;
+      overflow: auto;
+      display:flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-right: 6px;
+    }
+
+    .log-row {
+      border: 1px solid #1e293b;
+      background: rgba(2,6,23,.55);
+      border-radius: 12px;
+      padding: 10px 12px;
+      display:flex;
+      align-items:flex-start;
+      gap: 10px;
+    }
+
+    .log-time {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      font-size: .78rem;
+      color: #94a3b8;
+      min-width: 72px;
+      padding-top: 1px;
+    }
+
+    .log-dot {
+      width: 10px;
+      height: 10px;
+      margin-top: 4px;
+      border-radius: 999px;
+      background: #64748b;
+      flex: 0 0 auto;
+    }
+    .log-dot.ok { background: #22c55e; }
+    .log-dot.warn { background: #f59e0b; }
+    .log-dot.err { background: #f87171; }
+    .log-dot.info { background: #38bdf8; }
+
+    .log-msg {
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.25rem;
+      font-size: .92rem;
+    }
+
+    /* ===== CONFIG PAGE ===== */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -133,21 +400,43 @@
       color: #cbd5f5;
       display: block;
       margin-bottom: 6px;
+      font-weight: 700;
     }
 
     input {
       width: 100%;
       padding: 10px 12px;
-      border-radius: 8px;
+      border-radius: 12px;
       border: 1px solid #1e293b;
       background: #020617;
       color: #e5e7eb;
       outline: none;
     }
+    input:focus { border-color: #38bdf8; }
 
-    input:focus {
-      border-color: #38bdf8;
+    .input-wrap { position: relative; }
+    .input-wrap input { padding-right: 46px; }
+
+    .eye-btn {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      border: 1px solid #1e293b;
+      background: rgba(255,255,255,.02);
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
     }
+    .eye-btn:hover { border-color: rgba(56,189,248,.35); color: #38bdf8; }
+    .eye-btn:active { transform: translateY(-50%) scale(0.98); }
+    .eye-btn svg { width: 18px; height: 18px; }
 
     .actions {
       display: flex;
@@ -158,280 +447,403 @@
       margin-top: 16px;
     }
 
-    .btn {
-      border: none;
-      padding: 12px 16px;
-      border-radius: 10px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: filter .15s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      white-space: nowrap;
-    }
-
-    .btn:hover { filter: brightness(1.05); }
-
-    .btn:disabled {
-      opacity: .55;
-      cursor: not-allowed;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
-      color: #020617;
-    }
-
-    .btn-danger {
-      background: rgba(248,113,113,.12);
-      border: 1px solid rgba(248,113,113,.35);
-      color: #f87171;
-    }
-
-    .btn-success {
-      background: rgba(34,197,94,.12);
-      border: 1px solid rgba(34,197,94,.35);
-      color: #22c55e;
-    }
-
-    .status {
-      font-size: .85rem;
-      color: #22c55e;
-    }
-
-    .error {
-      font-size: .85rem;
-      color: #f87171;
-    }
-
-    .muted {
-      font-size: .75rem;
-      color: #64748b;
-    }
-
     .footer {
-      margin-top: 18px;
+      margin-top: 16px;
       font-size: .75rem;
       color: #64748b;
       text-align: center;
     }
 
-    .divider {
-      height: 1px;
-      background: #1e293b;
-      margin: 14px 0 18px;
+    @media (max-width: 720px) {
+      .wa-grid.with-qr { grid-template-columns: 1fr; }
     }
 
-    .pill-actions {
-      display:flex;
-      gap:10px;
-      align-items:center;
-      justify-content:flex-end;
-      flex-wrap: nowrap;
-    }
-
-    /* 👁️ Campo de senha com ícone */
-    .input-wrap {
-      position: relative;
-    }
-
-    .input-wrap input {
-      padding-right: 46px;
-    }
-
-    .eye-btn {
-      position: absolute;
-      top: 50%;
-      right: 10px;
-      transform: translateY(-50%);
-
-      width: 34px;
-      height: 34px;
-
-      border-radius: 10px;
-      border: 1px solid #1e293b;
-      background: rgba(255,255,255,.02);
-      color: #94a3b8;
-
+    /* ===== MODAL AUTH ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, .72);
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 16px;
+      z-index: 9999;
+    }
 
+    .modal-card {
+      width: 100%;
+      max-width: 460px;
+      background: rgba(2,6,23,.92);
+      border: 1px solid #1e293b;
+      border-radius: 16px;
+      box-shadow: 0 25px 60px rgba(0,0,0,.65);
+      overflow: hidden;
+    }
+
+    .modal-head {
+      padding: 14px 16px;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid #1e293b;
+      background: rgba(255,255,255,.02);
+    }
+
+    .modal-title {
+      font-weight: 900;
+      letter-spacing: .02em;
+    }
+
+    .modal-body {
+      padding: 16px;
+      display:flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .modal-hint {
+      color: #94a3b8;
+      font-size: .82rem;
+      margin-top: -2px;
+    }
+
+    .modal-actions {
+      display:flex;
+      gap: 10px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      padding: 14px 16px;
+      border-top: 1px solid #1e293b;
+      background: rgba(255,255,255,.02);
+    }
+
+    .xbtn {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      border: 1px solid #1e293b;
+      background: rgba(255,255,255,.02);
+      color: #e5e7eb;
       cursor: pointer;
       user-select: none;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight: 900;
     }
-
-    .eye-btn:hover {
-      border-color: rgba(56,189,248,.35);
-      color: #38bdf8;
-    }
-
-    .eye-btn:active {
-      transform: translateY(-50%) scale(0.98);
-    }
-
-    .eye-btn svg {
-      width: 18px;
-      height: 18px;
-    }
+    .xbtn:hover { border-color: rgba(56,189,248,.35); }
   </style>
 </head>
 
 <body>
   <div id="app" class="card">
 
-    <div class="topbar">
-      <div>
-        <h1>Configuração da API</h1>
-        <div class="subtitle">Gerencie parâmetros e ative/desative o envio automático sem reiniciar.</div>
-      </div>
-
-      <!-- PILL DO WORKER -->
-      <div class="pill">
-        <div class="pill-left">
-          <div class="pill-title">Envio automático</div>
-
-          <div class="pill-value">
-            <span v-if="worker.running">Ativo</span>
-            <span v-else>Parado</span>
-
-            <span class="badge" :class="worker.running ? 'on' : 'off'">
-              {{ worker.running ? 'ON' : 'OFF' }}
-            </span>
-          </div>
-
-          <div class="muted" v-if="worker.loading">verificando status...</div>
-        </div>
-
-        <div class="pill-actions">
-          <!-- Mostra ATIVAR somente quando estiver parado -->
-          <button
-            v-if="!worker.running"
-            class="btn btn-success"
-            @click="ativarWorker"
-            :disabled="worker.loading"
-          >
-            ▶ Ativar
-          </button>
-
-          <!-- Mostra PARAR somente quando estiver ativo -->
-          <button
-            v-else
-            class="btn btn-danger"
-            @click="pararWorker"
-            :disabled="worker.loading"
-          >
-            ■ Parar
-          </button>
+    <!-- HEADER / BRAND -->
+    <div class="brandbar">
+      <div class="brand-left">
+        <img class="brand-logo" src="images/CaioFlix.png" alt="CaioFlix">
+        <div class="brand-title">
+          <h1>CaioFlix Mensagens</h1>
+          <p class="subtitle" v-if="route === 'home'"></p>
+          <p class="subtitle" v-else>Configurações do Sistema</p>
         </div>
       </div>
-      <!-- /PILL -->
+
+      <div class="top-actions">
+        <button class="btn btn-ghost" v-if="route === 'home'" @click="requestConfigAccess">
+          ⚙ Configurações do Sistema
+        </button>
+
+        <button class="btn btn-ghost" v-else @click="goHome">
+          ← Voltar
+        </button>
+      </div>
     </div>
 
     <div class="divider"></div>
 
-    <div class="section">
-      <div class="section-title">Banco de Dados</div>
-      <div class="grid">
-        <div>
-          <label>Host</label>
-          <input v-model="config.db.host" placeholder="localhost">
-        </div>
+    <!-- =========================
+         TELA 1: PRINCIPAL
+         ========================= -->
+    <div v-if="route === 'home'">
 
-        <div>
-          <label>Porta</label>
-          <input type="number" v-model.number="config.db.port" placeholder="5432">
-        </div>
+      <!-- WORKER CONTROL -->
+      <div class="section">
+        <div class="section-title">Envio Automático</div>
 
-        <div>
-          <label>Usuário</label>
-          <input v-model="config.db.user" placeholder="usuario">
-        </div>
+        <div class="pill">
+          <div class="pill-left">
+            <div class="pill-title">Status do envio</div>
 
-        <div>
-          <label>Senha</label>
+            <div class="pill-value">
+              <span v-if="worker.running">Ativo</span>
+              <span v-else>Parado</span>
 
-          <div class="input-wrap">
-            <input
-              :type="ui.showPassword ? 'text' : 'password'"
-              v-model="config.db.password"
-              placeholder="senha"
+              <span class="badge" :class="worker.running ? 'on' : 'off'">
+                {{ worker.running ? 'ON' : 'OFF' }}
+              </span>
+            </div>
+
+            <div class="muted" v-if="worker.loading">verificando status...</div>
+
+            <label class="checkline">
+              <input type="checkbox"
+                     v-model="config.autoStartWorker"
+                     @change="salvarSomenteAutoStart">
+              Iniciar automaticamente o envio de mensagens
+              <span class="muted" v-if="autoStartSaving">salvando...</span>
+            </label>
+
+            <div class="muted">
+            </div>
+
+          </div>
+
+          <div class="pill-actions">
+            <button
+              v-if="!worker.running"
+              class="btn btn-success"
+              @click="ativarWorker"
+              :disabled="worker.loading"
             >
+              ▶ Ativar
+            </button>
 
             <button
-              type="button"
-              class="eye-btn"
-              @click="ui.showPassword = !ui.showPassword"
-              :title="ui.showPassword ? 'Ocultar senha' : 'Mostrar senha'"
+              v-else
+              class="btn btn-danger"
+              @click="pararWorker"
+              :disabled="worker.loading"
             >
-              <!-- olho aberto -->
-              <svg v-if="!ui.showPassword" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" stroke="currentColor" stroke-width="2" />
-                <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="2" />
-              </svg>
-
-              <!-- olho cortado -->
-              <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-                <path d="M3 3l18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                <path d="M10.58 10.58A3 3 0 0 0 12 15a3 3 0 0 0 2.42-4.42" stroke="currentColor" stroke-width="2"/>
-                <path d="M6.23 6.23C3.7 8.17 2 12 2 12s3.5 7 10 7c2.1 0 3.95-.6 5.5-1.5" stroke="currentColor" stroke-width="2"/>
-                <path d="M9.88 5.1A10.64 10.64 0 0 1 12 5c6.5 0 10 7 10 7a18.2 18.2 0 0 1-3.17 4.19" stroke="currentColor" stroke-width="2"/>
-              </svg>
+              ■ Parar
             </button>
           </div>
         </div>
 
+        <div style="margin-top:10px;">
+          <div class="status" v-if="statusHome">✔ {{ statusHome }}</div>
+          <div class="error" v-if="erroHome">✖ {{ erroHome }}</div>
+        </div>
+      </div>
+
+      <!-- WHATSAPP -->
+      <div class="section">
+        <div class="section-title">WhatsApp</div>
+
+        <div class="wa-wrap">
+          <div class="wa-grid" :class="wa.qrSrc ? 'with-qr' : 'no-qr'">
+
+            <div class="wa-card" v-if="wa.qrSrc">
+              <div class="wa-card-header">
+                <div class="wa-title">QR Code</div>
+                <span class="wa-chip warn">LEIA</span>
+              </div>
+
+              <img class="qr-img" :src="wa.qrSrc" alt="QR Code do WhatsApp" />
+              <div class="muted" style="margin-top:10px;">
+                Leia com o WhatsApp do celular para vincular.
+              </div>
+            </div>
+
+            <div class="wa-card">
+              <div class="logs-header">
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap: wrap;">
+                  <div class="wa-title">Logs</div>
+
+                  <span class="wa-chip" :class="wa.ready ? 'ok' : 'warn'">
+                    {{ wa.ready ? 'PRONTO' : (wa.connected ? 'CONECTADO' : 'DESCONECTADO') }}
+                  </span>
+                </div>
+
+                <div class="logs-actions">
+                  <button class="btn-sm" @click="limparLogs">Limpar</button>
+                  <button class="btn-sm" @click="reconectarSocket">Reconectar</button>
+                </div>
+              </div>
+
+              <div class="logs-box">
+                <div class="log-row" v-for="(l, idx) in wa.logs" :key="idx">
+                  <div class="log-time">{{ l.time }}</div>
+                  <div class="log-dot" :class="l.level"></div>
+                  <div class="log-msg">{{ l.text }}</div>
+                </div>
+
+                <div class="muted" v-if="wa.logs.length === 0">
+                  Nenhum log ainda.
+                </div>
+              </div>
+
+              <div class="muted" style="margin-top:10px;">
+                Logs em ordem (como terminal) e com horário.
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        CaioFlix Mensagens • Painel principal
+      </div>
+    </div>
+
+    <!-- =========================
+         TELA 2: CONFIGURAÇÕES
+         ========================= -->
+    <div v-else>
+
+      <div class="section">
+        <div class="section-title">Configurações de Conexão</div>
+
+        <div class="grid">
+          <div>
+            <label>Servidor</label>
+            <input v-model="config.db.host" placeholder="localhost">
+          </div>
+
+          <div>
+            <label>Porta</label>
+            <input type="number" v-model.number="config.db.port" placeholder="5432">
+          </div>
+
+          <div>
+            <label>Usuário</label>
+            <input v-model="config.db.user" placeholder="usuario">
+          </div>
+
+          <div>
+            <label>Senha</label>
+            <div class="input-wrap">
+              <input
+                :type="ui.showPassword ? 'text' : 'password'"
+                v-model="config.db.password"
+                placeholder="senha"
+              >
+              <button
+                type="button"
+                class="eye-btn"
+                @click="ui.showPassword = !ui.showPassword"
+                :title="ui.showPassword ? 'Ocultar senha' : 'Mostrar senha'"
+              >
+                <svg v-if="!ui.showPassword" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+                  <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" stroke="currentColor" stroke-width="2" />
+                  <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="2" />
+                </svg>
+                <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+                  <path d="M3 3l18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M10.58 10.58A3 3 0 0 0 12 15a3 3 0 0 0 2.42-4.42" stroke="currentColor" stroke-width="2"/>
+                  <path d="M6.23 6.23C3.7 8.17 2 12 2 12s3.5 7 10 7c2.1 0 3.95-.6 5.5-1.5" stroke="currentColor" stroke-width="2"/>
+                  <path d="M9.88 5.1A10.64 10.64 0 0 1 12 5c6.5 0 10 7 10 7a18.2 18.2 0 0 1-3.17 4.19" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label>Banco de dados</label>
+            <input v-model="config.db.database" placeholder="banco">
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Configurações de Envio</div>
+
+        <div class="grid">
+          <div>
+            <label>Grupo de Mensagens</label>
+            <input v-model="config.grupo" placeholder="MEU_GRUPO">
+          </div>
+
+          <div>
+            <label>Delay entre mensagens (segundos)</label>
+            <input type="number" min="1" v-model.number="config.delay" placeholder="5">
+            <div class="muted" style="margin-top:6px;">
+              Define o tempo, em segundos, para o sistema verificar novas mensagens.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">API</div>
+
+        <div class="grid">
+          <div>
+            <label>Porta API</label>
+            <input type="number" min="1" v-model.number="apiPort" placeholder="8888">
+            <div class="muted" style="margin-top:6px;">
+              Porta no qual esta API foi instalada para uso interno nas rotinas da aplicação!
+            </div>
+          </div>
+
+          <div>
+            <label>Base URL (automática)</label>
+            <input :value="computedBaseUrl" disabled>
+            <div class="muted" style="margin-top:6px;">
+              Esse campo mostra o endereço que será utilizado nas requisições internas!
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" @click="salvarConfigEVoltar" :disabled="saving">
+          💾 {{ saving ? 'Salvando...' : 'Salvar e voltar' }}
+        </button>
+
+        <button class="btn btn-ghost" @click="goHome" :disabled="saving">
+          Cancelar
+        </button>
+
         <div>
-          <label>Database</label>
-          <input v-model="config.db.database" placeholder="banco">
+          <div class="status" v-if="status">✔ {{ status }}</div>
+          <div class="error" v-if="erro">✖ {{ erro }}</div>
+        </div>
+      </div>
+
+      <div class="footer">
+        CaioFlix Mensagens • Configurações do Sistema
+      </div>
+    </div>
+
+    <!-- =========================
+         MODAL AUTH (sempre pede)
+         ========================= -->
+    <div class="modal-overlay" v-if="auth.open" @click.self="closeAuth">
+      <div class="modal-card">
+        <div class="modal-head">
+          <div class="modal-title">Acesso às Configurações</div>
+          <button class="xbtn" @click="closeAuth" :disabled="auth.loading">×</button>
+        </div>
+
+        <div class="modal-body">
+          <div>
+            <label>Usuário</label>
+            <input v-model="auth.user" autocomplete="username" placeholder="digite o usuário" @keydown.enter="submitAuth">
+          </div>
+
+          <div>
+            <label>Senha</label>
+            <input v-model="auth.pass" type="password" autocomplete="current-password" placeholder="digite a senha" @keydown.enter="submitAuth">
+            <div class="modal-hint"></div>
+          </div>
+
+          <div class="error" v-if="auth.error">✖ {{ auth.error }}</div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-ghost" @click="closeAuth" :disabled="auth.loading">Cancelar</button>
+          <button class="btn btn-primary" @click="submitAuth" :disabled="auth.loading">
+            {{ auth.loading ? 'Validando...' : 'Entrar' }}
+          </button>
         </div>
       </div>
     </div>
 
-    <div class="section">
-      <div class="section-title">Worker</div>
-      <div class="grid">
-        <div>
-          <label>Grupo</label>
-          <input v-model="config.grupo" placeholder="MEU_GRUPO">
-        </div>
-
-        <div>
-          <label>Delay (segundos)</label>
-          <input type="number" min="1" v-model.number="config.delay" placeholder="5">
-          <div class="muted" style="margin-top:6px;">Dica: mudanças no delay entram em vigor no próximo ciclo.</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">API</div>
-      <div class="grid">
-        <div>
-          <label>Base URL</label>
-          <input v-model="config.api.baseUrl" placeholder="http://localhost:8888">
-        </div>
-      </div>
-    </div>
-
-    <div class="actions">
-      <button class="btn btn-primary" @click="salvar" :disabled="saving">
-        💾 {{ saving ? 'Salvando...' : 'Salvar Configuração' }}
-      </button>
-
-      <div>
-        <div class="status" v-if="status">✔ {{ status }}</div>
-        <div class="error" v-if="erro">✖ {{ erro }}</div>
-      </div>
-    </div>
-
-    <div class="footer">
-      Config UI • Bot WhatsApp
-    </div>
   </div>
 
-  <!-- App Vue -->
   <script src="./app.js"></script>
 </body>
 </html>

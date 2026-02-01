@@ -1,5 +1,6 @@
 .env
 package-lock.json
+config.json
 
 # Dependency directories
 node_modules/

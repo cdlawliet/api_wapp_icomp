@@ -1,15 +1,14 @@
 {
+  "autoStartWorker": true,
   "db": {
-    "host": "localhost",
+    "host": "192.168.3.251",
     "port": 5432,
-    "user": "usuario",
-    "password": "senha",
-    "database": "banco"
+    "user": "icomp",
+    "password": "icompdbpw",
+    "database": "vilanova"
   },
-
-  "delay": 5,
-  "grupo": "MEU_GRUPO",
-
+  "delay": 10,
+  "grupo": "caio",
   "api": {
     "baseUrl": "http://localhost:8888"
   }

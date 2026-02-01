@@ -1,8 +1,21 @@
 const { loadConfig } = require('../../config/index');
-const executarCiclo = require('./worker'); // worker.js deve exportar executarCiclo (ajuste abaixo)
+const executarCiclo = require('./worker');
 
 let running = false;
 let timer = null;
+
+function getIo() {
+  return global.io || global.__io || null;
+}
+
+function emitUiMessage(text) {
+  try {
+    const io = getIo();
+    if (io && typeof io.emit === 'function') {
+      io.emit('message', text);
+    }
+  } catch (_) {}
+}
 
 function clearTimer() {
   if (timer) {
@@ -17,19 +30,21 @@ async function tick() {
   try {
     await executarCiclo();
   } catch (err) {
-    console.error('[Worker] Erro no ciclo:', err?.message || err);
+    const msg = '[Worker] Erro no ciclo: ' + (err?.message || err);
+    console.error(msg);
+    emitUiMessage(msg);
   }
 
-  // agenda próximo ciclo com delay atual (config pode mudar sem restart)
   const config = loadConfig();
   timer = setTimeout(tick, (config.delay || 5) * 1000);
 }
 
 function start() {
   if (running) return { running: true, message: 'Worker já estava ativo' };
+
   running = true;
   clearTimer();
-  tick(); // inicia imediatamente
+  tick();
   return { running: true, message: 'Worker iniciado' };
 }
 

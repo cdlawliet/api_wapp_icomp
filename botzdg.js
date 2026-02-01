@@ -11,6 +11,8 @@ const port = process.env.PORT || 8888;
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
+global.__io = io;
+
 
 function delay(t, v) {
   return new Promise(function(resolve) { 
@@ -19,16 +21,21 @@ function delay(t, v) {
 }
 
 app.use(express.json());
-app.use('/config', require('./routes/config'));
-app.use('/worker', require('./routes/worker'));
-app.use('/tmp', express.static(__dirname + '/modules/dbMessageWorker/tmp'));
-app.use(express.static('public'));
-app.use(express.urlencoded({
-extended: true
-}));
+app.use(express.urlencoded({extended: true}));
+
 app.use(fileUpload({
 debug: true
 }));
+
+app.use('/tmp', express.static(__dirname + '/modules/dbMessageWorker/tmp'));
+app.use(express.static('public'));
+
+app.use('/config', require('./routes/config'));
+app.use('/worker', require('./routes/worker'));
+
+const authRoutes = require('./routes/auth');
+app.use('/auth', authRoutes);
+
 app.use("/", express.static(__dirname + "/"))
 
 app.get('/', (req, res) => {
@@ -43,6 +50,7 @@ const client = new Client({
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
+      '--disable-ipv6',
       '--disable-dev-shm-usage',
       '--disable-accelerated-2d-canvas',
       '--no-first-run',
